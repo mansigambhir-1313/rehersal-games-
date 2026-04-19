@@ -23,6 +23,12 @@ export function BriefIntro({
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className="mx-auto max-w-[var(--page-max)] px-6 py-10 md:py-16"
     >
+      {demoMode && (
+        <div className="mb-6 inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[color:var(--color-reasoning-ink)]/25 bg-[color:var(--color-reasoning-bg)] text-[color:var(--color-reasoning-ink)] px-3 py-1 text-xs tracking-wide">
+          DEMO MODE · bigger type · scores hidden until reveal
+        </div>
+      )}
+
       {/* cover */}
       <div className="relative rounded-[var(--radius-card)] bg-[color:var(--color-ghost)] overflow-hidden aspect-[16/9] mb-8">
         <CoverArt />
