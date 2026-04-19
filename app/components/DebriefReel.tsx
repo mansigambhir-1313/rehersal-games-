@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useEffect } from "react";
 import { Check, X, CircleAlert } from "lucide-react";
+import { useSound } from "@/components/SoundProvider";
 import type { Scenario, Verdict } from "@/lib/types";
 
 export function DebriefReel({
@@ -14,8 +16,18 @@ export function DebriefReel({
   const titleById = new Map(
     scenario.canonicalCauses.map((c) => [c.id, c.title])
   );
+  const sound = useSound();
+
+  useEffect(() => {
+    if (!sound.enabled) return;
+    verdicts.forEach((_, i) => {
+      setTimeout(() => sound.playReveal(), i * 80 + 200);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" role="list" aria-label="Debrief reel">
       {verdicts.map((v, i) => (
         <VerdictCard
           key={v.canonicalCauseId}
@@ -43,6 +55,7 @@ function VerdictCard({
 
   return (
     <motion.div
+      role="listitem"
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay, ease: [0.16, 1, 0.3, 1] }}

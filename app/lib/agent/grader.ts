@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { getScenario } from "@/lib/scenarios";
+import { getScenario, pickDebriefVariant } from "@/lib/scenarios";
 import type {
   CanonicalCause,
   GradeRequest,
@@ -94,8 +94,9 @@ export async function liveGrade(req: GradeRequest): Promise<GradeResult> {
   // Attach debrief lines from scenario (grader shouldn't invent them; we own the copy).
   const verdicts: Verdict[] = output.verdicts.map((v) => {
     const canonical = shown.find((c) => c.id === v.canonicalCauseId);
-    const debriefLine =
-      canonical?.debriefLineVariants[0] ?? canonical?.title ?? "";
+    const debriefLine = canonical
+      ? pickDebriefVariant(canonical.debriefLineVariants, req.sessionId, canonical.id)
+      : "";
     return {
       canonicalCauseId: v.canonicalCauseId,
       userRankIfMatched: v.userRankIfMatched,

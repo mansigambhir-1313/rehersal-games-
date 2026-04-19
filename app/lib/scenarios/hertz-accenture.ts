@@ -1,0 +1,230 @@
+import type { Scenario } from "@/lib/types";
+
+export const hertzAccenture: Scenario = {
+  id: "hertz-accenture",
+  version: "1.0.0",
+  briefSlug: "capturing-user-intent",
+  culturalContext: "GLOBAL",
+  title: "The $32M Website That Never Went Live",
+  failurePoster: {
+    headline: "The $32M Website That Never Went Live",
+    subtitle:
+      "Hertz spent $32M on a website. It never shipped. Then they sued the vendor.",
+    storyParagraph:
+      "Two years of work. A 200-page statement of work. A vendor with a global brand. Weekly status reports that were always green. The website finally arrived for review and the buyer's CEO wouldn't approve a launch — too broken on mobile, too off-brand, too far from what customers had asked for. The vendor blamed shifting requirements. The buyer blamed delivery. The lawsuit blames everyone. You have ninety seconds — work backwards. Where did this fail, in priority order?",
+    coverImageUrl: "/covers/hertz-accenture.svg",
+    categoryPill: "Reasoning",
+  },
+  canonicalCauses: [
+    {
+      id: "no-customer-prototyping",
+      rankHint: 1,
+      title: "No customer-facing prototyping in the first six months",
+      debriefLineVariants: [
+        "If you don't put something in front of a real user before month six of a two-year project, you're building a contract, not a product.",
+        "Six months without a real customer click is six months of a hypothesis that's gaining weight without gaining truth.",
+      ],
+      synonyms: [
+        "no prototype",
+        "no user testing early",
+        "no customer feedback",
+        "no early prototype",
+        "no real users early",
+        "skipped prototyping",
+      ],
+    },
+    {
+      id: "no-buyer-product-owner",
+      rankHint: 2,
+      title: "No clear product owner on the buyer side with veto authority",
+      debriefLineVariants: [
+        "When nobody on the buyer side can say no, the vendor builds the easiest spec to deliver, not the hardest spec to land.",
+        "A project without a buyer-side product owner is a project where every stakeholder gets 5%. The CEO gets the 100% on launch day.",
+      ],
+      synonyms: [
+        "no product owner",
+        "no decision maker",
+        "no veto authority",
+        "buyer side ownership unclear",
+        "no single throat to choke",
+        "weak product ownership",
+      ],
+    },
+    {
+      id: "vendor-priced-features",
+      rankHint: 3,
+      title: "Vendor-priced features the buyer never validated",
+      debriefLineVariants: [
+        "If the vendor priced the SOW, the vendor will optimize for what the SOW pays for — not what the customer needs.",
+        "The most expensive line items in the contract were the ones nobody had ever wireframed.",
+      ],
+      synonyms: [
+        "vendor scoped features",
+        "buyer didn't validate scope",
+        "scope vendor-driven",
+        "features priced not validated",
+        "scope based on contract",
+      ],
+    },
+    {
+      id: "uat-after-launch",
+      rankHint: 4,
+      title: "UAT scheduled after the launch milestone, not before",
+      debriefLineVariants: [
+        "If you find the deal-breakers in UAT and UAT happens after launch, the deal-breakers are now deployed.",
+        "UAT after launch is a polite name for crisis management.",
+      ],
+      synonyms: [
+        "uat too late",
+        "user acceptance testing late",
+        "no testing before launch",
+        "qa at the end",
+        "testing after",
+      ],
+    },
+    {
+      id: "mobile-not-mobile-first",
+      rankHint: 5,
+      title: "\"Mobile-first\" was a slide, not an architecture",
+      debriefLineVariants: [
+        "Calling something mobile-first in the kickoff deck doesn't mean the build sprint started with a 375px viewport.",
+        "Most \"mobile-first\" projects are desktop-first projects with a stylesheet. Hertz's was the stylesheet, late, with bugs.",
+      ],
+      synonyms: [
+        "not actually mobile first",
+        "mobile broken",
+        "desktop first build",
+        "responsive afterthought",
+        "mobile experience bad",
+      ],
+    },
+    {
+      id: "feature-creep",
+      rankHint: 6,
+      title: "Feature creep mid-build with no scope discipline",
+      debriefLineVariants: [
+        "Every \"can we just add X\" without a deletion of Y becomes a 6-week slip and a 6-month resentment.",
+        "Scope creep isn't free even when the vendor agrees. It's billed in delivery dates and trust.",
+      ],
+      synonyms: [
+        "scope creep",
+        "feature creep",
+        "added features mid build",
+        "no scope control",
+        "kept adding requirements",
+      ],
+    },
+    {
+      id: "stakeholder-demos-not-customers",
+      rankHint: 7,
+      title: "Internal stakeholder demos replaced customer feedback",
+      debriefLineVariants: [
+        "Stakeholder demos optimize for next quarter's review. Customer demos optimize for next year's revenue. They're not interchangeable.",
+        "If your only feedback loop is the SVP nodding in a meeting, you'll launch a website that looks great in a pitch deck and bad on a phone.",
+      ],
+      synonyms: [
+        "demos to stakeholders",
+        "no real customer feedback",
+        "internal reviews only",
+        "executive demos",
+        "stakeholder approval not customer",
+      ],
+    },
+    {
+      id: "auth-payment-assumed",
+      rankHint: 8,
+      title: "Authentication and payments assumed, not specified",
+      debriefLineVariants: [
+        "The two systems most likely to break a launch are also the two systems most likely to be \"figured out later.\" Hertz figured it out at month 22.",
+        "Login + checkout never make the launch deck. They always make the rollback decision.",
+      ],
+      synonyms: [
+        "auth not specified",
+        "payment integration unclear",
+        "login broken",
+        "checkout broken",
+        "auth payment assumed",
+      ],
+    },
+    {
+      id: "brand-as-design-system",
+      rankHint: 9,
+      title: "Brand guidelines treated as a design system",
+      debriefLineVariants: [
+        "A brand guideline tells you what hex code to use. A design system tells you when to use it. Confusing the two costs months.",
+        "If your design system is a PDF, the website you ship is a coin flip on consistency.",
+      ],
+      synonyms: [
+        "brand guidelines as design system",
+        "no design system",
+        "branding not enough",
+        "design inconsistent",
+        "brand guide pdf",
+      ],
+    },
+    {
+      id: "security-late",
+      rankHint: 10,
+      title: "Security and compliance review pushed to the end",
+      debriefLineVariants: [
+        "Security review at month 22 isn't a review — it's a re-architecture project disguised as a review.",
+        "Every weekend of \"green status\" looks great until the InfoSec ticket arrives in month 23.",
+      ],
+      synonyms: [
+        "security late",
+        "compliance review at end",
+        "infosec late",
+        "security pushed to end",
+        "compliance afterthought",
+      ],
+    },
+    {
+      id: "buyer-pms-not-engineering",
+      rankHint: 11,
+      title: "Buyer team had project managers, not product engineers",
+      debriefLineVariants: [
+        "When the buyer side has only PMs, the vendor builds a project. When the buyer side has engineers, the vendor builds a product.",
+        "Outsourcing build is fine. Outsourcing product judgment is what got sued.",
+      ],
+      synonyms: [
+        "no engineers on buyer side",
+        "only project managers",
+        "no product engineers buyer",
+        "buyer team weak",
+        "buyer no technical capability",
+      ],
+    },
+    {
+      id: "sow-instead-of-discovery",
+      rankHint: 12,
+      title: "200-page SOW replaced 6 weeks of customer discovery",
+      debriefLineVariants: [
+        "Specifications are a poor substitute for the conversations you didn't have with the people who'd use the thing.",
+        "A 200-page SOW is what you write when you're afraid you'll have to negotiate later. Which means you'll have to negotiate later.",
+      ],
+      synonyms: [
+        "no discovery",
+        "skipped discovery",
+        "wrote sow instead of discovery",
+        "documentation instead of research",
+        "no customer research",
+      ],
+    },
+  ],
+  shownPerRound: 8,
+  candidateChips: [
+    "no early prototyping",
+    "no buyer product owner",
+    "vendor-priced features",
+    "UAT scheduled after launch",
+    "mobile not actually mobile-first",
+    "scope creep no discipline",
+    "stakeholder demos replaced users",
+    "auth/payment assumed",
+    "brand treated as design system",
+    "security review pushed late",
+    "buyer team only PMs",
+    "skipped customer discovery",
+  ],
+  targetTimeSeconds: 90,
+};

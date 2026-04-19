@@ -7,10 +7,15 @@ import { ArrowRight } from "lucide-react";
 export function BriefIntro({
   scenario,
   onStart,
+  demoMode,
 }: {
   scenario: Scenario;
   onStart: () => void;
+  demoMode?: boolean;
 }) {
+  const headlineSize = demoMode
+    ? "text-[52px] md:text-[64px]"
+    : "text-[44px] md:text-[56px]";
   return (
     <motion.section
       initial={{ opacity: 0, y: 16 }}
@@ -37,7 +42,7 @@ export function BriefIntro({
         </span>
       </div>
 
-      <h1 className="font-display text-[44px] md:text-[56px] leading-[1.05] text-[color:var(--color-ink)] mb-4">
+      <h1 className={`font-display ${headlineSize} leading-[1.05] text-[color:var(--color-ink)] mb-4`}>
         {scenario.failurePoster.headline}
       </h1>
 

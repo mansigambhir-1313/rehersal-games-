@@ -1,4 +1,4 @@
-import { getScenario } from "@/lib/scenarios";
+import { getScenario, pickDebriefVariant } from "@/lib/scenarios";
 import type {
   GradeRequest,
   GradeResult,
@@ -135,8 +135,11 @@ export function stubGrade(req: GradeRequest): GradeResult {
 
   const verdicts: Verdict[] = shownCauses.map((canonical) => {
     const match = chosen.get(canonical.id);
-    const debriefLine =
-      canonical.debriefLineVariants[0] ?? canonical.title;
+    const debriefLine = pickDebriefVariant(
+      canonical.debriefLineVariants,
+      req.sessionId,
+      canonical.id
+    );
     if (!match) {
       return {
         canonicalCauseId: canonical.id,

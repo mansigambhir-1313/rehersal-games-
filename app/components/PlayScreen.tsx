@@ -11,10 +11,11 @@ import { saveSession } from "@/lib/storage";
 import { selectCanonicalForRound } from "@/lib/scenarios";
 import { computeScores } from "@/lib/scoring";
 import { reportDecisionEvent } from "@/lib/integration/rehearsal";
+import { useSound } from "@/components/SoundProvider";
 import type { GradeRequest, GradeResult, Scenario, Session } from "@/lib/types";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Pause, Play } from "lucide-react";
 
-type Phase = "intro" | "editing" | "grading" | "error";
+type Phase = "intro" | "editing" | "paused" | "grading" | "error";
 
 export function PlayScreen({
   scenario,
@@ -24,12 +25,15 @@ export function PlayScreen({
   demoMode: boolean;
 }) {
   const router = useRouter();
+  const sound = useSound();
   const [phase, setPhase] = useState<Phase>("intro");
   const [items, setItems] = useState<EditorItem[]>([blankItem()]);
   const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [pauseStartedAt, setPauseStartedAt] = useState<number | null>(null);
+  const [pauseUsedMs, setPauseUsedMs] = useState(0);
+  const [pauseUsed, setPauseUsed] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
-  // useState lazy initializer is the canonical place to do an impure one-shot init.
   const [sessionId] = useState(() => generateSessionId());
   const shownCanonicalIds = useMemo(
     () => selectCanonicalForRound(scenario, sessionId),
@@ -45,7 +49,6 @@ export function PlayScreen({
   const addChip = useCallback((text: string) => {
     setItems((cur) => {
       if (cur.length >= 10) return cur;
-      // replace first blank if present, else append
       const firstBlank = cur.findIndex((i) => !i.text.trim());
       if (firstBlank >= 0) {
         const copy = [...cur];
@@ -56,11 +59,30 @@ export function PlayScreen({
     });
   }, []);
 
+  const togglePause = useCallback(() => {
+    if (phase === "editing") {
+      if (pauseUsed) return;
+      setPauseStartedAt(Date.now());
+      setPauseUsed(true);
+      setPhase("paused");
+    } else if (phase === "paused" && pauseStartedAt !== null) {
+      setPauseUsedMs((cur) => cur + (Date.now() - pauseStartedAt));
+      setPauseStartedAt(null);
+      setPhase("editing");
+    }
+  }, [phase, pauseStartedAt, pauseUsed]);
+
   const handleSubmit = useCallback(async () => {
-    if (phase !== "editing" || startedAt === null) return;
+    if ((phase !== "editing" && phase !== "paused") || startedAt === null) return;
+    // If we're still paused when submit fires, finalize the pause credit.
+    let totalPauseMs = pauseUsedMs;
+    if (phase === "paused" && pauseStartedAt !== null) {
+      totalPauseMs += Date.now() - pauseStartedAt;
+    }
+    const rawElapsed = Date.now() - startedAt;
     const timeUsedMs = Math.min(
       scenario.targetTimeSeconds * 1000,
-      Date.now() - startedAt
+      Math.max(0, rawElapsed - totalPauseMs)
     );
     const userCauses = items
       .map((it, idx) => ({ rank: idx + 1, text: it.text.trim() }))
@@ -68,6 +90,7 @@ export function PlayScreen({
       .slice(0, 10);
 
     setPhase("grading");
+    sound.playSubmit();
 
     const body: GradeRequest = {
       scenarioId: scenario.id,
@@ -75,7 +98,7 @@ export function PlayScreen({
       shownCanonicalIds,
       userCauses,
       timeUsedMs,
-      pauseUsedMs: 0,
+      pauseUsedMs: totalPauseMs,
       sessionId,
     };
 
@@ -94,7 +117,7 @@ export function PlayScreen({
         userCauses,
         result.verdicts,
         timeUsedMs,
-        false,
+        pauseUsed,
         scenario.targetTimeSeconds * 1000
       );
       const finalResult: GradeResult = { ...result, scores };
@@ -109,7 +132,7 @@ export function PlayScreen({
         completedAt: new Date().toISOString(),
         userCauses,
         timeUsedMs,
-        pauseUsedMs: 0,
+        pauseUsedMs: totalPauseMs,
         gradeResult: finalResult,
         mode: demoMode ? "demo" : result.mode,
         culturalContext: scenario.culturalContext,
@@ -120,7 +143,7 @@ export function PlayScreen({
         decisionQuality: scores.decisionQuality,
       });
 
-      router.push(`/debrief?session=${sessionId}`);
+      router.push(`/debrief?session=${sessionId}${demoMode ? "&demo=1" : ""}`);
     } catch (e) {
       setErrorMsg(
         e instanceof Error ? e.message : "Unexpected error while grading"
@@ -130,22 +153,28 @@ export function PlayScreen({
   }, [
     demoMode,
     items,
+    pauseStartedAt,
+    pauseUsed,
+    pauseUsedMs,
     phase,
     router,
     scenario,
     sessionId,
     shownCanonicalIds,
+    sound,
     startedAt,
   ]);
 
   if (phase === "intro") {
-    return <BriefIntro scenario={scenario} onStart={startClock} />;
+    return <BriefIntro scenario={scenario} onStart={startClock} demoMode={demoMode} />;
   }
 
   if (phase === "error") {
     return (
       <section className="mx-auto max-w-[var(--page-max)] px-6 py-20">
-        <h1 className="font-display text-3xl mb-3">The grader couldn&apos;t score that round.</h1>
+        <h1 className="font-display text-3xl mb-3">
+          The grader couldn&apos;t score that round.
+        </h1>
         <p className="text-[color:var(--color-muted)] mb-6">{errorMsg}</p>
         <button className="pill-ink" onClick={() => setPhase("editing")}>
           Try submitting again
@@ -154,8 +183,17 @@ export function PlayScreen({
     );
   }
 
+  const bigText = demoMode ? "text-[17px] md:text-[19px]" : "text-[15px]";
+  const paused = phase === "paused";
+
   return (
     <section className="mx-auto max-w-[var(--page-max)] px-6 py-8 md:py-12 relative">
+      {demoMode && (
+        <div className="mb-6 inline-flex items-center gap-2 rounded-[var(--radius-pill)] border border-[color:var(--color-reasoning-ink)]/25 bg-[color:var(--color-reasoning-bg)] text-[color:var(--color-reasoning-ink)] px-3 py-1 text-xs tracking-wide">
+          DEMO MODE · bigger type · scores revealed on click
+        </div>
+      )}
+
       <div className="mb-6 flex items-center gap-3">
         <StepDotsStep2 />
       </div>
@@ -164,18 +202,50 @@ export function PlayScreen({
         <div className="text-xs tracking-widest text-[color:var(--color-muted)] mb-1.5">
           THE FAILURE
         </div>
-        <div className="text-[15px] text-[color:var(--color-ink)] leading-snug">
+        <div className={`${bigText} text-[color:var(--color-ink)] leading-snug`}>
           {scenario.failurePoster.subtitle}
         </div>
       </div>
 
-      <div className="mb-8">
-        <TimerBar
-          running={phase === "editing"}
-          durationMs={scenario.targetTimeSeconds * 1000}
-          onExpire={handleSubmit}
-        />
+      <div className="mb-8 flex items-center gap-4">
+        <div className="flex-1">
+          <TimerBar
+            running={phase === "editing"}
+            durationMs={scenario.targetTimeSeconds * 1000}
+            onExpire={handleSubmit}
+            paused={paused}
+          />
+        </div>
+        {!pauseUsed && (
+          <button
+            type="button"
+            onClick={togglePause}
+            className="pill-ghost !py-1.5 !px-3 text-xs"
+            aria-label="Pause the clock. Costs part of your time bonus."
+          >
+            <Pause size={12} />
+            Pause (−time bonus)
+          </button>
+        )}
+        {paused && (
+          <button
+            type="button"
+            onClick={togglePause}
+            className="pill-ink !py-1.5 !px-3 text-xs"
+            aria-label="Resume the clock"
+          >
+            <Play size={12} />
+            Resume
+          </button>
+        )}
       </div>
+
+      {paused && (
+        <div className="mb-6 rounded-[var(--radius-card)] border border-[color:var(--color-partial)]/30 bg-[color:var(--color-partial)]/5 px-4 py-3 text-sm text-[color:var(--color-partial)]">
+          Paused. Clock is stopped. Resume when you&apos;re ready — your time
+          bonus is halved for using this.
+        </div>
+      )}
 
       <div className="mb-4">
         <div className="text-xs tracking-widest text-[color:var(--color-muted)] mb-3">
@@ -226,13 +296,12 @@ function generateSessionId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
   }
-  // Server-side or older runtime fallback. useState lazy init lets us be impure here.
   return Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
 }
 
 function StepDotsStep2() {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2" aria-label="Step 2 of 3 — diagnose">
       <span className="size-1.5 rounded-full bg-[color:var(--color-divider)]" />
       <span className="size-1.5 rounded-full bg-[color:var(--color-ink)]" />
       <span className="size-1.5 rounded-full bg-[color:var(--color-divider)]" />

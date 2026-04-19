@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Home, Sparkles, BookMarked, ScrollText, ClipboardList, Brain, BarChart3, FileText, Rocket } from "lucide-react";
+import { SoundToggle } from "@/components/SoundProvider";
 
 /**
  * Sidebar shell matching Rehearsal's design.
@@ -38,9 +39,12 @@ export function Nav() {
           <Rocket size={16} />
           Upgrade to PRO
         </button>
-        <div className="flex items-center gap-2 px-3 py-2 text-sm text-[color:var(--color-muted)]">
-          <div className="size-7 rounded-full bg-[color:var(--color-reasoning-bg)] text-[color:var(--color-reasoning-ink)] grid place-items-center text-xs font-medium">M</div>
-          Mansi Gam…
+        <div className="flex items-center justify-between gap-2 px-3 py-2 text-sm text-[color:var(--color-muted)]">
+          <div className="flex items-center gap-2">
+            <div className="size-7 rounded-full bg-[color:var(--color-reasoning-bg)] text-[color:var(--color-reasoning-ink)] grid place-items-center text-xs font-medium">M</div>
+            Mansi Gam…
+          </div>
+          <SoundToggle />
         </div>
       </div>
     </aside>

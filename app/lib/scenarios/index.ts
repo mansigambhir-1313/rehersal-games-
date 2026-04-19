@@ -1,8 +1,12 @@
 import type { Scenario } from "@/lib/types";
 import { funnelRecovery } from "./funnel-recovery";
+import { resignationLetter } from "./resignation-letter";
+import { hertzAccenture } from "./hertz-accenture";
 
 export const scenarios: Record<string, Scenario> = {
   [funnelRecovery.id]: funnelRecovery,
+  [resignationLetter.id]: resignationLetter,
+  [hertzAccenture.id]: hertzAccenture,
 };
 
 export function getScenario(id: string): Scenario | null {
@@ -34,4 +38,21 @@ export function selectCanonicalForRound(scenario: Scenario, sessionId: string): 
   };
   const shuffled = [...ids].sort(() => rng() - 0.5);
   return shuffled.slice(0, count);
+}
+
+/**
+ * Pick a debrief-line variant deterministically per session × cause.
+ * Different sessions see different flavor on replay.
+ */
+export function pickDebriefVariant(
+  variants: string[],
+  sessionId: string,
+  causeId: string
+): string {
+  if (!variants.length) return "";
+  if (variants.length === 1) return variants[0];
+  let h = 0;
+  const key = sessionId + "|" + causeId;
+  for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+  return variants[h % variants.length];
 }
