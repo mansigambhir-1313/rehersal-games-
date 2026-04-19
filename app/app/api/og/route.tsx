@@ -4,9 +4,10 @@ import { getScenario } from "@/lib/scenarios";
 export const runtime = "edge";
 
 /**
- * Generate a shareable OG card for a debriefed round.
+ * Share card for a debriefed round.
  * GET /api/og?scenario=funnel-recovery&dq=83
- * Returns 1200x630 PNG optimized for WhatsApp / LinkedIn / Twitter previews.
+ * Every div in a Satori template MUST declare display: flex (or none) — that's
+ * non-negotiable, even for single-child containers. Keep the layout simple.
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -16,7 +17,8 @@ export async function GET(request: Request) {
 
   const scenario = getScenario(scenarioId);
   const title = scenario?.title ?? "Inversion Gym";
-  const subtitle = scenario?.failurePoster.subtitle ?? "The product died. Work backwards.";
+  const subtitle =
+    scenario?.failurePoster.subtitle ?? "The product died. Work backwards.";
 
   return new ImageResponse(
     (
@@ -29,29 +31,20 @@ export async function GET(request: Request) {
           justifyContent: "space-between",
           padding: "72px 80px",
           background: "#FAFAF8",
-          fontFamily: "serif",
           color: "#0F0F0F",
         }}
       >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span
-              style={{
-                fontSize: 32,
-                letterSpacing: "-0.01em",
-              }}
-            >
-              <span
-                style={{
-                  borderBottom: "3px solid #6B46C1",
-                  paddingBottom: 2,
-                }}
-              >
-                Re
-              </span>
-              hearsal
-            </span>
+        {/* Top row */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
+          <div style={{ display: "flex", fontSize: 30, fontWeight: 500 }}>
+            Rehearsal
           </div>
           <div
             style={{
@@ -61,17 +54,24 @@ export async function GET(request: Request) {
               color: "#4C1D95",
               padding: "8px 20px",
               borderRadius: 999,
-              fontSize: 20,
+              fontSize: 18,
               fontWeight: 500,
-              fontFamily: "sans-serif",
+              letterSpacing: 2,
             }}
           >
             INVERSION GYM
           </div>
         </div>
 
-        {/* Center: score + title */}
-        <div style={{ display: "flex", alignItems: "center", gap: 60 }}>
+        {/* Center — score + title */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 56,
+            width: "100%",
+          }}
+        >
           <div
             style={{
               display: "flex",
@@ -85,35 +85,45 @@ export async function GET(request: Request) {
               flexShrink: 0,
             }}
           >
-            <div style={{ fontSize: 96, fontWeight: 500, lineHeight: 1 }}>{dq}</div>
+            <div style={{ display: "flex", fontSize: 96, fontWeight: 600, lineHeight: 1 }}>
+              {dq}
+            </div>
             <div
               style={{
-                fontSize: 14,
-                letterSpacing: "0.2em",
+                display: "flex",
+                fontSize: 13,
+                letterSpacing: 4,
                 color: "#8A8680",
-                fontFamily: "sans-serif",
-                marginTop: 8,
+                marginTop: 10,
               }}
             >
               DECISION QUALITY
             </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+            }}
+          >
             <div
               style={{
-                fontSize: 56,
+                display: "flex",
+                fontSize: 58,
                 lineHeight: 1.05,
                 marginBottom: 20,
-                letterSpacing: "-0.01em",
+                fontWeight: 500,
               }}
             >
               {title}
             </div>
             <div
               style={{
+                display: "flex",
                 fontSize: 24,
                 color: "#8A8680",
-                fontStyle: "italic",
                 lineHeight: 1.4,
               }}
             >
@@ -122,19 +132,23 @@ export async function GET(request: Request) {
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Bottom row */}
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "baseline",
+            width: "100%",
             fontSize: 22,
-            fontFamily: "sans-serif",
             color: "#8A8680",
           }}
         >
-          <span>Think you can do better? Play at rehearsal-inversion-gym.vercel.app</span>
-          <span style={{ color: "#0F0F0F" }}>90s · 8 causes · 1 ranked list</span>
+          <div style={{ display: "flex" }}>
+            Think you can do better? rehearsal-inversion-gym.vercel.app
+          </div>
+          <div style={{ display: "flex", color: "#0F0F0F" }}>
+            90s · 8 causes · 1 ranked list
+          </div>
         </div>
       </div>
     ),
