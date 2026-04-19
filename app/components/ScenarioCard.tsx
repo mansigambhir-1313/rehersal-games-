@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getPartner } from "@/lib/partners";
 import type { Scenario } from "@/lib/types";
 
 export function ScenarioCard({ scenario }: { scenario: Scenario }) {
+  const partner = getPartner(scenario.seniorPartnerId);
   return (
     <Link
       href={`/play?scenario=${scenario.id}`}
@@ -25,7 +27,13 @@ export function ScenarioCard({ scenario }: { scenario: Scenario }) {
         <p className="text-sm text-[color:var(--color-muted)] leading-relaxed line-clamp-3">
           {scenario.failurePoster.subtitle}
         </p>
-        <div className="mt-2 flex items-center justify-between text-xs text-[color:var(--color-muted)]">
+        <div className="text-xs text-[color:var(--color-muted)]">
+          Graded by{" "}
+          <span className="text-[color:var(--color-ink)] font-medium">
+            {partner.name}
+          </span>
+        </div>
+        <div className="mt-1 flex items-center justify-between text-xs text-[color:var(--color-muted)]">
           <span>{scenario.targetTimeSeconds}s · {scenario.shownPerRound} causes</span>
           <span className="inline-flex items-center gap-1 text-[color:var(--color-ink)] opacity-70 group-hover:opacity-100 group-hover:gap-2 transition-all">
             Play

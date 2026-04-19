@@ -8,17 +8,21 @@ export function ShareButton({
   scenarioId,
   decisionQuality,
   scenarioTitle,
+  partnerName,
 }: {
   scenarioId: string;
   decisionQuality: number;
   scenarioTitle: string;
+  partnerName?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
   const share = useCallback(async () => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const playUrl = `${origin}/play?scenario=${scenarioId}`;
-    const text = `I scored ${decisionQuality} on "${scenarioTitle}" — Inversion Gym.\nCan you do better? ${playUrl}`;
+    const text = partnerName
+      ? `${partnerName} graded my "${scenarioTitle}" diagnosis: ${decisionQuality}/100 on Inversion Gym.\nCan you do better? ${playUrl}`
+      : `I scored ${decisionQuality} on "${scenarioTitle}" — Inversion Gym.\nCan you do better? ${playUrl}`;
     reportDecisionEvent({ kind: "share_clicked", destination: "copy" });
     try {
       if (typeof navigator !== "undefined" && "share" in navigator) {
@@ -49,7 +53,7 @@ export function ShareButton({
       setCopied(true);
       setTimeout(() => setCopied(false), 2400);
     }
-  }, [decisionQuality, scenarioId, scenarioTitle]);
+  }, [decisionQuality, partnerName, scenarioId, scenarioTitle]);
 
   return (
     <button type="button" className="pill-ghost" onClick={share} aria-live="polite">

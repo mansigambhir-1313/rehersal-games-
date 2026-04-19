@@ -3,6 +3,8 @@
 import { motion } from "motion/react";
 import type { Scenario } from "@/lib/types";
 import { ArrowRight } from "lucide-react";
+import { PartnerByline } from "@/components/PartnerByline";
+import { getPartner } from "@/lib/partners";
 
 export function BriefIntro({
   scenario,
@@ -16,6 +18,7 @@ export function BriefIntro({
   const headlineSize = demoMode
     ? "text-[52px] md:text-[64px]"
     : "text-[44px] md:text-[56px]";
+  const partner = getPartner(scenario.seniorPartnerId);
   return (
     <motion.section
       initial={{ opacity: 0, y: 16 }}
@@ -68,6 +71,10 @@ export function BriefIntro({
         <div className="text-sm text-[color:var(--color-muted)]">
           90-second round · up to 10 causes · drag to rank
         </div>
+      </div>
+
+      <div className="mt-10 pt-6 border-t border-[color:var(--color-divider)]">
+        <PartnerByline partner={partner} prefix="Reporting to" />
       </div>
     </motion.section>
   );

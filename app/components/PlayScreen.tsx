@@ -12,6 +12,7 @@ import { selectCanonicalForRound } from "@/lib/scenarios";
 import { computeScores } from "@/lib/scoring";
 import { reportDecisionEvent } from "@/lib/integration/rehearsal";
 import { useSound } from "@/components/SoundProvider";
+import { getPartner } from "@/lib/partners";
 import type { GradeRequest, GradeResult, Scenario, Session } from "@/lib/types";
 import { ArrowRight, Pause, Play } from "lucide-react";
 
@@ -185,6 +186,7 @@ export function PlayScreen({
 
   const bigText = demoMode ? "text-[17px] md:text-[19px]" : "text-[15px]";
   const paused = phase === "paused";
+  const partner = getPartner(scenario.seniorPartnerId);
 
   return (
     <section className="mx-auto max-w-[var(--page-max)] px-6 py-8 md:py-12 relative">
@@ -205,6 +207,12 @@ export function PlayScreen({
         <div className={`${bigText} text-[color:var(--color-ink)] leading-snug`}>
           {scenario.failurePoster.subtitle}
         </div>
+      </div>
+
+      <div className="mb-2 flex items-center justify-between text-xs text-[color:var(--color-muted)]">
+        <span>
+          {partner.name.split(" ")[0]} is waiting on your call.
+        </span>
       </div>
 
       <div className="mb-8 flex items-center gap-4">

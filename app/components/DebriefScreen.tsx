@@ -8,7 +8,9 @@ import { getScenario } from "@/lib/scenarios";
 import { DebriefReel } from "@/components/DebriefReel";
 import { ScoreDial } from "@/components/ScoreDial";
 import { ShareButton } from "@/components/ShareButton";
+import { PartnerByline } from "@/components/PartnerByline";
 import { linkToBrief } from "@/lib/integration/rehearsal";
+import { getPartner } from "@/lib/partners";
 import { ArrowRight, Eye, RefreshCcw } from "lucide-react";
 import type { Session } from "@/lib/types";
 
@@ -69,6 +71,7 @@ export function DebriefScreen({
   }
 
   const { scores, verdicts, overallMessage, mode, partial } = session.gradeResult;
+  const partner = getPartner(scenario.seniorPartnerId);
 
   return (
     <section className="mx-auto max-w-[var(--page-max)] px-6 py-10 md:py-14">
@@ -114,6 +117,9 @@ export function DebriefScreen({
         >
           <ScoreDial value={scores.decisionQuality} size={200} />
           <div className="flex-1">
+            <div className="mb-3">
+              <PartnerByline partner={partner} />
+            </div>
             <h1 className="font-display text-3xl md:text-4xl leading-tight text-[color:var(--color-ink)] mb-3">
               {overallMessage}
             </h1>
@@ -160,6 +166,7 @@ export function DebriefScreen({
             scenarioId={scenario.id}
             decisionQuality={scores.decisionQuality}
             scenarioTitle={scenario.title}
+            partnerName={partner.name}
           />
         )}
         <a

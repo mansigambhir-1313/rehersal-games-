@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getScenario } from "@/lib/scenarios";
+import { getPartner } from "@/lib/partners";
 
 export const runtime = "edge";
 
@@ -19,6 +20,7 @@ export async function GET(request: Request) {
   const title = scenario?.title ?? "Inversion Gym";
   const subtitle =
     scenario?.failurePoster.subtitle ?? "The product died. Work backwards.";
+  const partner = scenario ? getPartner(scenario.seniorPartnerId) : null;
 
   return new ImageResponse(
     (
@@ -129,6 +131,18 @@ export async function GET(request: Request) {
             >
               {subtitle.slice(0, 140)}
             </div>
+            {partner && (
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 18,
+                  color: "#4C1D95",
+                  marginTop: 18,
+                }}
+              >
+                Graded by {partner.name}
+              </div>
+            )}
           </div>
         </div>
 

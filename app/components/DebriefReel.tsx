@@ -107,7 +107,7 @@ function VerdictCard({
           {title}
         </div>
         <div className="text-[15px] text-[color:var(--color-muted)] leading-relaxed">
-          {verdict.debriefLine}
+          {verdict.partnerNote || verdict.debriefLine}
         </div>
         {verdict.matchedUserCauseText && (
           <div className="mt-2 text-xs text-[color:var(--color-muted)] italic">

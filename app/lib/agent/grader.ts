@@ -12,6 +12,7 @@ import {
   GRADER_PROMPT_VERSION,
   buildUserPrompt,
 } from "./prompts";
+import { getPartner } from "@/lib/partners";
 
 /**
  * Live grader — calls Claude with prompt caching on the system prompt + scenario block.
@@ -43,8 +44,18 @@ export async function liveGrade(req: GradeRequest): Promise<GradeResult> {
   // Scenario static block — cached (1-hour TTL extended via cache_control on each block).
   const scenarioBlock = buildScenarioCacheBlock(scenario, shown);
 
+  // Partner persona travels in the dynamic tail (per-round).
+  // Tone (sharp/warm) is picked post-hoc by the model from its own grade,
+  // not by a pre-grade heuristic — see SYSTEM_PROMPT § OVERALL MESSAGE.
+  const partner = getPartner(scenario.seniorPartnerId);
+
   // Dynamic tail — user-specific, not cached.
-  const dynamicBlock = buildUserPrompt(scenario, shown, req.userCauses);
+  const dynamicBlock = buildUserPrompt(
+    scenario,
+    shown,
+    req.userCauses,
+    partner
+  );
 
   const response = await client.messages.create({
     model: mapModelName(model),
@@ -87,11 +98,14 @@ export async function liveGrade(req: GradeRequest): Promise<GradeResult> {
       userRankIfMatched: number | null;
       matchConfidence: number;
       matchedUserCauseText: string | null;
+      partnerNote?: string;
     }>;
     overallMessage: string;
   };
 
   // Attach debrief lines from scenario (grader shouldn't invent them; we own the copy).
+  // partnerNote is the live LLM output; debriefLine is the v1 fallback the UI
+  // uses when partnerNote is missing (e.g. stub responses or cached old sessions).
   const verdicts: Verdict[] = output.verdicts.map((v) => {
     const canonical = shown.find((c) => c.id === v.canonicalCauseId);
     const debriefLine = canonical
@@ -103,6 +117,7 @@ export async function liveGrade(req: GradeRequest): Promise<GradeResult> {
       matchConfidence: clamp01(v.matchConfidence),
       matchedUserCauseText: v.matchedUserCauseText,
       debriefLine,
+      partnerNote: typeof v.partnerNote === "string" ? v.partnerNote.slice(0, 220) : undefined,
     };
   });
 
@@ -150,10 +165,10 @@ function buildScenarioCacheBlock(
     `CANONICAL CAUSES FOR THIS ROUND:`,
     ...shown.map(
       (c, i) =>
-        `${i + 1}. [id: ${c.id}] ${c.title}\n   synonyms: ${c.synonyms.join("; ")}`
+        `${i + 1}. [id: ${c.id}] [kind: ${c.causeKind}] ${c.title}\n   synonyms: ${c.synonyms.join("; ")}\n   teaching note: ${c.teachingNote}`
     ),
     ``,
-    `The block above is stable for this scenario. The user's ranked list appears in the next message block.`,
+    `The block above is stable for this scenario. The user's ranked list and partner persona appear in the next message block.`,
   ].join("\n");
 }
 
