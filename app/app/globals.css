@@ -1,0 +1,146 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — matches tokens defined in docs/build_plan_v2.md §5.2
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* color */
+  --color-ink: #0F0F0F;
+  --color-paper: #FAFAF8;
+  --color-ghost: #E8E6E1;
+  --color-muted: #8A8680;
+  --color-divider: #E8E6E1;
+
+  /* category: Reasoning (Inversion Gym) */
+  --color-reasoning-bg: #EDE5F7;
+  --color-reasoning-ink: #4C1D95;
+
+  /* verdicts */
+  --color-caught: #059669;
+  --color-missed: #B91C1C;
+  --color-partial: #CA8A04;
+
+  /* accent */
+  --color-sparkle: #6B46C1;
+
+  /* radius */
+  --radius-pill: 9999px;
+  --radius-card: 12px;
+  --radius-input: 8px;
+
+  /* shadow */
+  --shadow-card: 0 1px 2px rgba(15,15,15,0.04), 0 4px 16px rgba(15,15,15,0.04);
+  --shadow-focus: 0 0 0 3px rgba(107,70,193,0.35);
+
+  /* motion */
+  --ease-auth: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-micro: 200ms;
+  --dur-major: 400ms;
+  --dur-reveal: 800ms;
+
+  /* layout */
+  --page-max: 680px;
+  --sidebar-w: 240px;
+}
+
+@theme inline {
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-instrument-serif);
+}
+
+html, body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv01";
+}
+
+/* ── typography utilities ─────────────────────────────────── */
+.font-display {
+  font-family: var(--font-instrument-serif), "Cormorant Garamond", Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.font-mono-num {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── focus ring ───────────────────────────────────────────── */
+*:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-input);
+}
+
+/* ── reduced-motion safety ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── selection ───────────────────────────────────────────── */
+::selection {
+  background: var(--color-reasoning-bg);
+  color: var(--color-reasoning-ink);
+}
+
+/* ── button primitives (editorial pill) ─────────────────── */
+.pill-ink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--color-ink);
+  color: var(--color-paper);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: transform var(--dur-micro) var(--ease-auth), opacity var(--dur-micro) var(--ease-auth);
+  cursor: pointer;
+  border: none;
+}
+.pill-ink:hover:not(:disabled) {
+  transform: translateY(-1px);
+  opacity: 0.92;
+}
+.pill-ink:active:not(:disabled) {
+  transform: translateY(0);
+}
+.pill-ink:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pill-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--color-ink);
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  border: 1px solid var(--color-divider);
+  transition: all var(--dur-micro) var(--ease-auth);
+  cursor: pointer;
+}
+.pill-ghost:hover:not(:disabled) {
+  background: var(--color-ghost);
+}
+
+/* ── scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-ghost); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
